@@ -7,16 +7,21 @@ clone this repository
 git clone https://github.com/keikun80/am.git
 ```
 
-am.py : collect date / url / latency from conf/am.conf file  
+**am.py** : collect date / url / latency from conf/am.conf file  
 It is main script for this AM (should running background process)
+```
+python am.py &
+```
+**amanlyzer.py** : analyze down time calcualte on file in data directroy
+```
+python amanlyzer.py
+```
 
-amanlyzer.py : analyze down time calcualte on file in data directroy
-
-onf/am.conf : yaml format config file
+**conf/am.conf** : yaml format config file
 You should set name, interval, url   
-- **name is the name of target's and group name of interval and target.
-- **interval is time interval of each requesting.
-- **url is which you will check every request means monitoring availability
+- *name* is the name of target's and group name of interval and target.
+- *interval* is time interval of each requesting.
+- *url* is which you will check every request means monitoring availability
 
 ```yaml example 
 - name: "onehost"
@@ -29,4 +34,4 @@ You should set name, interval, url
   interval: 1
   url: "https://www.python.org"
 ```
-- _data(directroy) : request result are stored 
+- **data(directroy)** : request result are stored 
