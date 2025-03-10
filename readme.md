@@ -14,9 +14,9 @@ amanlyzer.py : analyze down time calcualte on file in data directroy
 
 onf/am.conf : yaml format config file
 You should set name, interval, url   
-- *name is the name of target's and group name of interval and target.
-- _interval is time interval of each requesting.
-- _ url is which you will check every request means monitoring availability
+- **name is the name of target's and group name of interval and target.
+- **interval is time interval of each requesting.
+- **url is which you will check every request means monitoring availability
 
 ```yaml example 
 - name: "onehost"
