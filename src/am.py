@@ -3,41 +3,59 @@ import requests
 import os,sys
 import time 
 import datetime 
-import threading
+import threading 
 import signal
-
+import re 
+sys.path.append(os.path.abspath("lib"))
+import log 
 
 TIMEOUT = 60
 configFile = os.path.abspath("conf/am.conf")
 dataPath = os.path.abspath("data")  
-
 #if not os.path.exists(dataPath):
 #    os.makedirs(dataPath) 
-### TO DO 
-# 2. 로그 파일이 특정 용량이 되거나 특정 시간이 되면 압축 할 것
+### TO DO  
+# 1. 로그파일의 날짜가 넘어가면 파일을 다시 열어서 날짜별로 파일을 분리
+# 2. 로그 파일이 특정 용량이 되거나 특정 시간이 되면 압축
+# 3. 멀티 쓰레드를 멀티 프로세스로 변경 
 class Am():
     name = ""
     url = ""
     interval = 0 
     fsHandle = object() 
     
-    def __init__(self, item):
+    def __init__(self, item): 
         self.name = item['name']
         self.url = item['url']
-        self.interval = item['interval']  
+        self.interval = item['interval']
+        
+    def logGenerate(self):
         now = datetime.datetime.now()
         today = now.strftime("%Y-%m-%d")
         fname = self.name+"_"+today+".dat"  
         if not os.path.exists(dataPath):
             os.makedirs(dataPath) 
         fsPath = os.path.join(dataPath, fname)
-        fileMode ="a+" 
-        self.fsHandle = open(fsPath, fileMode)  
+        fileMode ="a+"  
+        try: 
+            self.fsHandle = open(fsPath, fileMode)
+        except Exception as e:
+            print(e)
+            sys.exit(1)
         
-    def toRequest(self): 
+    def toRequest(self):
+        self.logGenerate() 
+        currentFile = os.path.basename(self.fsHandle.name)  
+        pattern = (r'\d{4}-\d{2}-\d{2}')
+        p = re.compile(pattern) 
+        r = p.search(currentFile).group() 
         while True: 
             now = datetime.datetime.now()
             starttime = time.time() 
+            today = now.strftime("%Y-%m-%d") 
+            if r != today: 
+                log.compress(self.fsHandle.name)
+                self.logGenerate()
             try:
                 res = requests.get(self.url,verify=False, timeout=TIMEOUT)
             except ConnectionError as e:
