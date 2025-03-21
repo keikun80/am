@@ -3,8 +3,7 @@ import requests
 import os,sys
 import time 
 import datetime 
-import threading 
-import signal
+from multiprocessing import Process
 import re 
 sys.path.append(os.path.abspath("lib"))
 import log 
@@ -15,9 +14,7 @@ dataPath = os.path.abspath("data")
 #if not os.path.exists(dataPath):
 #    os.makedirs(dataPath) 
 ### TO DO  
-# 1. 로그파일의 날짜가 넘어가면 파일을 다시 열어서 날짜별로 파일을 분리
-# 2. 로그 파일이 특정 용량이 되거나 특정 시간이 되면 압축
-# 3. 멀티 쓰레드를 멀티 프로세스로 변경 
+# 3. 멀티 쓰레드를 멀티 프로세스로 변경  
 class Am():
     name = ""
     url = ""
@@ -28,7 +25,7 @@ class Am():
         self.name = item['name']
         self.url = item['url']
         self.interval = item['interval']
-        
+    
     def logGenerate(self):
         now = datetime.datetime.now()
         today = now.strftime("%Y-%m-%d")
@@ -76,18 +73,15 @@ def getItem():
     configGen = next(configLoad)  
     return configGen
 
-if __name__ == "__main__":  
-    threads = list() 
-    Project = list()
-    #event = threading.Event() 
+with cProfile.Profile() as pr:
+if __name__ == "__main__":   
+    Project = list() 
     
     item = getItem() 
     # create Thread pool as much as item's length
-    for i in item:
+    for i in item: 
         Project.append(Am(i)) 
-        
+    
     for k in Project: 
-        x = threading.Thread(target=k.toRequest, args=())
-        threads.append(x)
-        x.start() 
-          
+        x = Process(target=k.toRequest, args=())
+        x.start()
