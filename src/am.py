@@ -14,7 +14,6 @@ dataPath = os.path.abspath("data")
 #if not os.path.exists(dataPath):
 #    os.makedirs(dataPath) 
 ### TO DO  
-# 3. 멀티 쓰레드를 멀티 프로세스로 변경  
 class Am():
     name = ""
     url = ""
@@ -73,7 +72,6 @@ def getItem():
     configGen = next(configLoad)  
     return configGen
 
-with cProfile.Profile() as pr:
 if __name__ == "__main__":   
     Project = list() 
     
