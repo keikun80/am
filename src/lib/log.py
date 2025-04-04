@@ -4,22 +4,24 @@
 import gzip,os
 import shutil 
 
-class logRotate:
-    def __init__(self, filename):   
-        self.logFileName = filename 
-   
-    def compress(self):
-        print(self.logFileName) 
-        with open(self.logFileName,"rb") as f_in:
-            with gzip.open(self.logFileName+".gz", 'wb') as f_out: 
-                shutil.copyfileobj(f_in, f_out)
+#class logRotate:
+#    def __init__(self, filename):   
+#        self.logFileName = filename 
+#   
+#    def compress(self):
+#        print(self.logFileName) 
+#        with open(self.logFileName,"rb") as f_in:
+#            with gzip.open(self.logFileName+".gz", 'wb') as f_out: 
+#                shutil.copyfileobj(f_in, f_out) 
+#        shutil.rmtree(self.logFileName) 
 
 
 def compress(logFileName):
     print(logFileName) 
     with open(logFileName,"rb") as f_in:
         with gzip.open(logFileName+".gz", 'wb') as f_out: 
-            shutil.copyfileobj(f_in, f_out) 
+            shutil.copyfileobj(f_in, f_out)
+            # I would like to remove when finish zipping 
             
             
 if __name__ == "__main__": 

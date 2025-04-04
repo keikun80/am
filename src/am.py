@@ -41,17 +41,29 @@ class Am():
         
     def toRequest(self):
         self.logGenerate() 
-        currentFile = os.path.basename(self.fsHandle.name)  
-        pattern = (r'\d{4}-\d{2}-\d{2}')
-        p = re.compile(pattern) 
-        r = p.search(currentFile).group() 
+        #currentFile = os.path.basename(self.fsHandle.name)  
+        #pattern = (r'\d{4}-\d{2}-\d{2}')
+        #p = re.compile(pattern) 
+        #r = p.search(currentFile).group() 
         while True: 
+            currentFile = os.path.basename(self.fsHandle.name)  
+            pattern = (r'\d{4}-\d{2}-\d{2}')
+            p = re.compile(pattern) 
+            r = p.search(currentFile).group()  
+            
             now = datetime.datetime.now()
             starttime = time.time() 
             today = now.strftime("%Y-%m-%d") 
-            if r != today: 
-                log.compress(self.fsHandle.name)
+            print("r : ", r)
+            print("today: ", today) 
+            
+            if r != today:
+                fileName = self.fsHandle.name
+                log.compress(fileName)
+                self.fsHandle.close() 
                 self.logGenerate()
+                os.unlink(fileName) 
+                
             try:
                 res = requests.get(self.url,verify=False, timeout=TIMEOUT)
             except ConnectionError as e:
