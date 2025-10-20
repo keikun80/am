@@ -11,17 +11,18 @@ import time
 
 dataDir = os.path.abspath("data") 
 downInterval = 60
-def getFile(Direc = dataDir):
+def getFileList(dirName: str) -> list:
     '''
     get all file in dataDir 
     return : list of data files
     '''   
     retVal = []
-    for x in os.listdir(Direc):
+    for x in os.listdir(dirName):
         if x.endswith("dat"):
-             retVal.append(os.path.abspath(Direc+"/"+x))
-    return retVal 
-def analyzeFile(f):  
+             retVal.append(os.path.abspath(dirName+"/"+x))
+    return retVal  
+
+def analyzeFile(fileName :str) -> None:
     i = 0
     startDate = 0
     endDate = 0 
@@ -54,9 +55,10 @@ def analyzeFile(f):
                 print("else")
             i = i + 1 
     #print(endDate, startDate, endDate - startDate, downTime)
-    print(f"Availabity : {100 - (downTime/(endDate - startDate) * 100)} %") 
+    print(f"Availabity : {100 - (downTime/(endDate - startDate) * 100)} %")  
+    
 if __name__ == "__main__":
-    dataFiles = getFile()   
+    dataFiles = getFileList(dataDir)   
    
     for f in dataFiles:
         analyzeFile(f)
