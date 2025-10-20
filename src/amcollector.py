@@ -3,7 +3,9 @@ import requests
 import os,sys
 import time 
 import datetime 
-import re 
+import re  
+#import typing
+from typing import List, Dict, Any
 sys.path.append(os.path.abspath("lib"))
 import amlog 
 
@@ -19,32 +21,32 @@ class Am():
     interval = 0 
     fsHandle = object() 
     
-    def __init__(self, item): 
+    def __init__(self, item: List[Dict[str,str]]) -> None:
         self.name = item['name']
         self.url = item['url']
         self.interval = item['interval']
+        self.verify_ssl = item.get('verify_ssl', True)
     
-    def logGenerate(self):
+    def logGenerate(self) -> None:
         now = datetime.datetime.now()
         today = now.strftime("%Y-%m-%d")
         fname = self.name+"_"+today+".dat"  
         if not os.path.exists(dataPath):
             os.makedirs(dataPath) 
         fsPath = os.path.join(dataPath, fname)
-        fileMode ="a+"  
+        fileMode ="a+"
         try: 
             self.fsHandle = open(fsPath, fileMode)
         except Exception as e:
             print(e)
             sys.exit(1)
-        
-    def toRequest(self):
+    def toRequest(self) -> None:
         self.logGenerate() 
         #currentFile = os.path.basename(self.fsHandle.name)  
         #pattern = (r'\d{4}-\d{2}-\d{2}')
         #p = re.compile(pattern) 
         #r = p.search(currentFile).group() 
-        while True:
+        while True: 
             currentFile = os.path.basename(self.fsHandle.name)  
             pattern = (r'\d{4}-\d{2}-\d{2}')
             p = re.compile(pattern) 
@@ -64,10 +66,11 @@ class Am():
                 os.unlink(fileName) 
                 
             try:
-                res = requests.get(self.url,verify=False, timeout=TIMEOUT) 
+                res = requests.get(self.url,verify=False, timeout=TIMEOUT)
             except ConnectionError as e:
                 print(e)
                 sys.exit(1) 
+                
             if res.status_code < 401:
                 endtime = time.time()
                 latency = round(endtime-starttime,2)
@@ -75,22 +78,20 @@ class Am():
                # print("{0}\t{1}\t{2}\n".format(now, self.url, latency)) 
                 self.fsHandle.flush()
             time.sleep(self.interval)
-     
-def getItem():
-    fs = open (configFile, "r")  
-    configLoad = yaml.load_all(fs, Loader=yaml.FullLoader) 
-    configGen = next(configLoad)  
-    return configGen
+             
+def getItem() -> List[Dict[str, Any]]:
+    with open(configFile, "r") as fs:
+        config_load = yaml.load_all(fs, Loader=yaml.FullLoader)
+        config_gen = next(config_load)
+    return config_gen
 
-if __name__ == "__main__":    
+if __name__ == "__main__":     
     from multiprocessing import Process
     Project = list() 
     
     item = getItem() 
     # create Thread pool as much as item's length
-    for i in item: 
-        Project.append(Am(i)) 
-    
-    for k in Project: 
-        x = Process(target=k.toRequest, args=())
+    for i in item:  
+        obj = Am(i)
+        x = Process(target=obj.toRequest, args=())
         x.start()

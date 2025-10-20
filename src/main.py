@@ -12,5 +12,4 @@ if __name__ == "__main__":
     for i in item:  
         obj = amcollector.Am(i)
         x = Process(target=obj.toRequest, args=())
-        x.start() 
-        x.join()
+        x.start()
