@@ -4,8 +4,11 @@ import os,sys
 import time 
 import datetime 
 import re  
-from typing import List, Dict
+from typing import List, Dict, Any
 #sys.path.append(os.path.abspath("lib")) 
+from urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 from lib import amlog, amconfig
 
 TIMEOUT = 60
@@ -65,7 +68,7 @@ class Am():
                 os.unlink(fileName) 
                 
             try:
-                res = requests.get(self.url,verify=False, timeout=TIMEOUT)
+                res = requests.get(self.url,verify=self.verify_ssl, timeout=TIMEOUT)
             except ConnectionError as e:
                 print(e)
                 sys.exit(1) 
@@ -84,13 +87,8 @@ class Am():
 #        config_gen = next(config_load)
 #    return config_gen
 
-if __name__ == "__main__":     
-    from multiprocessing import Process
-    Project = list() 
-    
-    item = amconfig.getItem() 
-    # create Thread pool as much as item's length
-    for i in item:  
-        obj = Am(i)
-        x = Process(target=obj.toRequest, args=())
-        x.start()
+if __name__ == "__main__":
+    Project = list()
+    #manager = Manager()
+    item = amconfig.get_items()
+    print(item)
