@@ -4,14 +4,13 @@ import os,sys
 import time 
 import datetime 
 import re  
-#import typing
-from typing import List, Dict, Any
-sys.path.append(os.path.abspath("lib"))
-import amlog 
+from typing import List, Dict
+#sys.path.append(os.path.abspath("lib")) 
+from lib import amlog, amconfig
 
 TIMEOUT = 60
-configFile = os.path.abspath("conf/am.conf")
-dataPath = os.path.abspath("data")  
+#configFile = os.path.abspath("conf/am.conf")
+#dataPath = os.path.abspath("data")  
 #if not os.path.exists(dataPath):
 #    os.makedirs(dataPath) 
 ### TO DO  
@@ -31,9 +30,9 @@ class Am():
         now = datetime.datetime.now()
         today = now.strftime("%Y-%m-%d")
         fname = self.name+"_"+today+".dat"  
-        if not os.path.exists(dataPath):
-            os.makedirs(dataPath) 
-        fsPath = os.path.join(dataPath, fname)
+        if not os.path.exists(amconfig.dataDir):
+            os.makedirs(amconfig.dataDir) 
+        fsPath = os.path.join(amconfig.dataDir, fname)
         fileMode ="a+"
         try: 
             self.fsHandle = open(fsPath, fileMode)
@@ -79,17 +78,17 @@ class Am():
                 self.fsHandle.flush()
             time.sleep(self.interval)
              
-def getItem() -> List[Dict[str, Any]]:
-    with open(configFile, "r") as fs:
-        config_load = yaml.load_all(fs, Loader=yaml.FullLoader)
-        config_gen = next(config_load)
-    return config_gen
+#def getItem() -> List[Dict[str, Any]]:
+#    with open(configFile, "r") as confFile:
+#        config_load = yaml.load_all(confFile, Loader=yaml.FullLoader)
+#        config_gen = next(config_load)
+#    return config_gen
 
 if __name__ == "__main__":     
     from multiprocessing import Process
     Project = list() 
     
-    item = getItem() 
+    item = amconfig.getItem() 
     # create Thread pool as much as item's length
     for i in item:  
         obj = Am(i)
