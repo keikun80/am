@@ -5,22 +5,32 @@
 # 측정간격
 
 import os, sys 
-import multiprocessing 
-from datetime import datetime
+import gzip
+import shutil
+import pathlib
+from datetime import datetime 
 import time
 
 dataDir = os.path.abspath("data") 
-downInterval = 60
+#dataDir = pathlib.Path.absolute("data")
+downInterval = 60 
+
 def getFileList(dirName: str) -> list:
     '''
     get all file in dataDir 
     return : list of data files
     '''   
-    retVal = []
-    for x in os.listdir(dirName):
-        if x.endswith("dat"):
-             retVal.append(os.path.abspath(dirName+"/"+x))
-    return retVal  
+    retVal = [] 
+    for x in os.listdir(dirName): 
+        if x.endswith("dat"): 
+            retVal.append(os.path.abspath(dirName+"/"+x))  
+        elif x.endswith("gz"):
+            with gzip.open(os.path.abspath(f"{dirName}/{x}"), "rb") as f_in:
+                with open(os.path.abspath(dirName+"/"+pathlib.Path(x).stem), "wb") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            retVal.append(os.path.abspath(dirName+"/"+pathlib.Path(x).stem)) 
+            
+    return set(retVal)
 
 def analyzeFile(fileName :str) -> None:
     i = 0
@@ -28,8 +38,9 @@ def analyzeFile(fileName :str) -> None:
     endDate = 0 
     downTime = 0
     prevTime =0
-    currentTime = 0 
-    print("\n=========================== \n")
+    currentTime = 0  
+    downTimeStr = ""
+    print("\n=========================== \n") 
     with open (f , "r") as fd: 
         diffTime = dict() 
         for line in fd.readlines():  
@@ -40,13 +51,14 @@ def analyzeFile(fileName :str) -> None:
                 prevTimeStr = datetime.strptime(item[0], "%Y-%m-%d %H:%M:%S.%f")  
                 prevTime = time.mktime(prevTimeStr.timetuple())  
                 startDate = prevTime
-                print(f"statistic for {item[1]}")
+    #            print(f"statistic for {item[1]}")
             elif (prevTime > 0) and (currentTime == 0):
                 currentTimeStr = datetime.strptime(item[0], "%Y-%m-%d %H:%M:%S.%f")   
                 currentTime = time.mktime(currentTimeStr.timetuple())  
                 diffTime[item[0]] = currentTime - prevTime  
                 if diffTime[item[0]] >= downInterval: 
-                    print(f"down at :{prevTimeStr} ~ {currentTimeStr} : {diffTime[item[0]]} sec")  
+    #                print(f"down at :{prevTimeStr} ~ {currentTimeStr} : {diffTime[item[0]]} sec")  
+                    downTimeStr += f"- down at :{prevTimeStr} ~ {currentTimeStr} : {diffTime[item[0]]} sec\n"
                     downTime = downTime + diffTime[item[0]]
                 prevTime = currentTime 
                 endDate = currentTime
@@ -55,7 +67,8 @@ def analyzeFile(fileName :str) -> None:
                 print("else")
             i = i + 1 
     #print(endDate, startDate, endDate - startDate, downTime)
-    print(f"Availabity : {100 - (downTime/(endDate - startDate) * 100)} %")  
+    #print(f"Availabity : {100 - (downTime/(endDate - startDate) * 100)} %")    
+    print(f'Date : {item[0].split(" ")[0]} , URL : {item[1]} \n{downTimeStr}')
     
 if __name__ == "__main__":
     dataFiles = getFileList(dataDir)   
