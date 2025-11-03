@@ -68,7 +68,7 @@ def analyzeFile(fileName :str) -> None:
             i = i + 1 
     #print(endDate, startDate, endDate - startDate, downTime)
     #print(f"Availabity : {100 - (downTime/(endDate - startDate) * 100)} %")    
-    print(f'Date : {item[0].split(" ")[0]} , URL : {item[1]} \n{downTimeStr}')
+    print(f'Date : {item[0].split(" ")[0]} , URL : {item[1]}, Availability : {100 - (downTime/(endDate-startDate)* 100)}% \n{downTimeStr}')
     
 if __name__ == "__main__":
     dataFiles = getFileList(dataDir)   
